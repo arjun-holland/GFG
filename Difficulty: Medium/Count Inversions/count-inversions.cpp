@@ -4,45 +4,63 @@ using namespace std;
 
 
 // } Driver Code Ends
-
 class Solution {
   public:
-  int ans=0;
-     void merge(vector<int> &arr,int low, int high, int mid){
-        int n1=mid-low+1;
-        int n2=high-mid;
-        int arr1[n1];
-        int arr2[n2];
-        
-        for(int i=0;i<n1;i++) arr1[i]=arr[i+low];
-        for(int i=0;i<n2;i++) arr2[i]=arr[i+mid+1];
-        int i=0,j=0,k=low;
-        while(i<n1 && j<n2){
-            if(arr1[i]<=arr2[j]) arr[k++]=arr1[i++];
-            else {
-                arr[k++]=arr2[j++];
-                ans+=n1-i;
+    // Function to count inversions in the array.
+    void merge(vector<int>& arr, int s, int e, int m, int &r) {
+        int left = s, right = m + 1;
+        vector<int> temp;
+
+        while (left <= m && right <= e) {
+            if (arr[left] <= arr[right]) {
+                temp.push_back(arr[left]);
+                left++;
+            } else {
+                r += (m - left + 1); // Count inversions.
+                temp.push_back(arr[right]);
+                right++;
             }
         }
-        while(i<n1) arr[k++]=arr1[i++];
-        while(j<n2) arr[k++]=arr2[j++];
+
+        // Add remaining elements.
+        while (left <= m) {
+            temp.push_back(arr[left]);
+            left++;
+        }
+        while (right <= e) {
+            temp.push_back(arr[right]);
+            right++;
+        }
+        for (int i = s; i <= e; i++) {
+            arr[i] = temp[i - s];
+        }
+    }
+
+    // Function to perform merge sort and count inversions.
+    void mergeSort(vector<int>& arr, int s, int e, int &r) {//
+        if (s >= e) return;
+        int m = s + (e - s) / 2;
         
+        mergeSort(arr, s, m, r);
+        mergeSort(arr, m + 1, e, r);
+        
+        merge(arr, s, e, m, r);
     }
-    
-    int mergeSort(vector<int> &arr,int low, int high){
-        if(low>=high) return 0;
-        int mid=low+(high-low)/2;
-        mergeSort(arr,low,mid);
-        mergeSort(arr,mid+1,high);
-        merge(arr,low,high,mid);
-        return ans;
-    }
+
     int inversionCount(vector<int> &arr) {
-        int N=arr.size();
-        return mergeSort(arr,0,N-1);
+       /* int r =0;
+        for(int i=0;i<arr.size();i++){ //10^5*10^5 == 10^10 > 10^5 TLE
+            for(int j=i+1;j<arr.size();j++){
+                if(arr[i]>arr[j])
+                   r++;
+            }
+        }
+        return r; */
+        int r = 0;
+        mergeSort(arr,0,arr.size()-1,r);
+        return r;
     }
 };
-
 
 //{ Driver Code Starts.
 
