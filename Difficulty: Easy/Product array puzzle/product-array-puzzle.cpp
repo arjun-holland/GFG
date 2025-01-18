@@ -2,40 +2,64 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Complete back-end function template for C++
-
 
 // } Driver Code Ends
+
+
 // User function template for C++
 
 class Solution {
   public:
-    // nums: given vector
-    // return the Product vector P that hold product except self at each index
-    vector<long long> productExceptSelf(vector<int>& arr) {
+    vector<int> productExceptSelf(vector<int>& arr) {
         // code here
-        vector<long long> re;
-        for(int i=0;i<arr.size();i++){
-            long long ans = 1;
-            for(int j=0;j<arr.size();j++){
-                if(i != j){
-                    ans *= arr[j];
+        int n = arr.size();
+        vector<int> res(n);
+
+        int product = 1;
+        int zeroCount = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (arr[i] == 0) {
+                zeroCount++;
+            } else {
+                product *= arr[i];
+            }
+        }
+
+        if (zeroCount > 1) {
+            return vector<int>(n, 0); // All zeros
+        }
+
+
+        if (zeroCount == 1) {
+            for (int i = 0; i < n; i++) {
+                if (arr[i] == 0) {
+                    res[i] = product;
+                } else {
+                    res[i] = 0;
                 }
             }
-            re.push_back(ans);
+            return res;
         }
-        return re;
+
+        for (int i = 0; i < n; i++) {
+            res[i] = product / arr[i];
+        }
+
+        return res;
     }
 };
+
+
 
 
 //{ Driver Code Starts.
 
 int main() {
 
-    int t; // Number of test cases
+    int t;
     cin >> t;
-    cin.ignore(); // To ignore newline character after t input
+    cin.ignore();
 
     while (t--) {
         vector<int> arr;
@@ -49,13 +73,13 @@ int main() {
         }
 
         Solution obj;
-        vector<long long> vec = obj.productExceptSelf(arr); // Function call
+        vector<int> res = obj.productExceptSelf(arr);
 
-        for (int i = 0; i < vec.size(); i++) { // Print the output
-            cout << vec[i] << " ";
+        for (int i = 0; i < res.size(); i++) {
+            cout << res[i] << " ";
         }
         cout << endl;
-        cout << "~" << endl;
+        cout << "~\n";
     }
 
     return 0;
