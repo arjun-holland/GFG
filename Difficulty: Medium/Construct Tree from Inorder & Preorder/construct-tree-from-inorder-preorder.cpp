@@ -45,34 +45,30 @@ public:
 */
 class Solution {
   public:
-    int findIndex(vector<int> &arr, int start, int target) {
-        int i = 0;
-        while (arr[start + i] != target)
-            i++;
-        return i;
+    Node* solve(vector<int>& in,vector<int>& pre,int s,int e,int& bi){
+        if(s>e)return NULL;
+        
+        int rootVal = pre[bi];
+        int i = s;
+        for(;i<=e;i++){
+            if(in[i] == pre[bi]){
+                break;
+            }
+        }
+        bi++;
+        
+        Node* r = new Node(rootVal);
+        r->left = solve(in,pre,s,i-1,bi);
+        r->right = solve(in,pre,i+1,e,bi);
+        
+        return r;
     }
-
-    Node *buildUtil(vector<int> &inorder, vector<int> &preorder, int inStart,
-                    int preStart, int n) {
-        if (n == 0)
-            return NULL;
-
-        Node *root = new Node(preorder[preStart]);
-
-        int i = findIndex(inorder, inStart, preorder[preStart]);
-
-        // Recursively construct the left and right subtrees
-        root->left = buildUtil(inorder, preorder, inStart, preStart + 1, i);
-        root->right =
-            buildUtil(inorder, preorder, inStart + i + 1, preStart + i + 1, n - i - 1);
-
-        return root;
-    }
-
-    // Function to build the tree from given inorder and preorder traversals
+    
     Node *buildTree(vector<int> &inorder, vector<int> &preorder) {
-        int n = inorder.size();
-        return buildUtil(inorder, preorder, 0, 0, n);
+        // code here
+        int n = inorder.size()-1;
+        int idx = 0;
+        return solve(inorder,preorder,0,n,idx);
     }
 };
 
