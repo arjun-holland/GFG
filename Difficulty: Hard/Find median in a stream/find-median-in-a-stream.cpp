@@ -8,30 +8,28 @@ class Solution {
   public:
     vector<double> getMedian(vector<int> &arr) {
         // code here
-        vector<double> ans;
-        priority_queue<int> mxh;
-        priority_queue<int,vector<int>,greater<int>> mih;
+        priority_queue<int> mx; // max ele in left side
+        priority_queue<int,vector<int>,greater<int>> mi; // min ele in right side
         
+        vector<double> res;
         for(int e : arr){
-            if(mxh.empty() || e <= mxh.top()) mxh.push(e);
-            else mih.push(e);
-            
-            if(mxh.size() > mih.size()+1){
-                mih.push(mxh.top());
-                mxh.pop();
-            }else if(mih.size() > mxh.size()){
-                mxh.push(mih.top());
-                mih.pop();
+            mx.push(e);
+            mi.push(mx.top());
+            mx.pop();
+            if(mi.size() > mx.size()){
+                mx.push(mi.top());
+                mi.pop();
             }
-            
-            if(mih.size() == mxh.size())
-               ans.push_back((mih.top()+mxh.top())/2.0);
-            else ans.push_back(mxh.top());
+            if(mx.size() == mi.size()){
+                res.push_back((mx.top()+ mi.top())/2.0);
+            }else{
+                res.push_back(mx.top());
+            }
         }
-        return ans;
+        return res;
+    
     }
 };
-// As we need to maintain tha order for every insertion in the arr we hve to use the heap DS 
 
 
 //{ Driver Code Starts.
