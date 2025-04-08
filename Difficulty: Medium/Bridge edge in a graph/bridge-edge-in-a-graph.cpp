@@ -5,51 +5,34 @@ using namespace std;
 
 // } Driver Code Ends
 
+
 class Solution {
-    int time = 0;
-    bool foundBridge = false;
-    
-    void dfs(int u, int parent, vector<int> adj[], vector<int>& disc, vector<int>& low, int c, int d) {
-        disc[u] = low[u] = time++;
-        
-        for (int v : adj[u]) {
-            if (v == parent) continue;
-            
-            if (disc[v] == -1) {
-                dfs(v, u, adj, disc, low, c, d);
-                
-                low[u] = min(low[u], low[v]);
-                
-                // Check if this edge is a bridge
-                if (low[v] > disc[u]) {
-                    if ((u == c && v == d) || (u == d && v == c)) {
-                        foundBridge = true;
-                    }
-                }
-            } else {
-                low[u] = min(low[u], disc[v]);
-            }
+  public:
+    void DFS(int node, unordered_map<int, vector<int>>& adjL, vector<bool>& vis) {
+        vis[node] = true;
+        for (int ngh : adjL[node]) {
+            if (!vis[ngh])
+                DFS(ngh, adjL, vis);
         }
     }
 
-public:
-    bool isBridge(int V, vector<vector<int>>& edges, int c, int d) {
-        vector<int> adj[V];
-        for (auto& e : edges) {
-            adj[e[0]].push_back(e[1]);
-            adj[e[1]].push_back(e[0]);
+    bool isBridge(int V, vector<vector<int>> &edges, int c, int d) {
+        unordered_map<int, vector<int>> adjL;
+
+        for (auto e : edges) {
+            int u = e[0];
+            int v = e[1];
+            if((u == c && v == d) || (u == d && v == c))continue;
+            adjL[u].push_back(v);
+            adjL[v].push_back(u);
         }
 
-        vector<int> disc(V, -1), low(V, -1);
-
-        for (int i = 0; i < V; ++i) {
-            if (disc[i] == -1) {
-                dfs(i, -1, adj, disc, low, c, d);
-            }
-        }
-        return foundBridge;
+        vector<bool> visited(V, false);
+        DFS(c, adjL, visited);
+        return !visited[d];
     }
 };
+
 
 
 //{ Driver Code Starts.
