@@ -9,29 +9,40 @@ using namespace std;
 
 class Solution {
   public:
-    int minCost(vector<vector<int>>& houses) {
-        int n = houses.size();
-        vector<bool> visited(n, false);
-        vector<int> minDist(n, INT_MAX);
-        minDist[0] = 0; 
-        int cost = 0;
-        for (int i = 0; i < n; ++i) {
-            int u = -1;
-            for (int j = 0; j < n; ++j) {
-                if (!visited[j] && (u == -1 || minDist[j] < minDist[u])) {
-                    u = j;
-                }
-            }
-            visited[u] = true;
-            cost += minDist[u];
-            for (int v = 0; v < n; ++v) {
-                if (!visited[v]) {
-                    int dist = abs(houses[u][0] - houses[v][0]) + abs(houses[u][1] - houses[v][1]);
-                    minDist[v] = min(minDist[v], dist);
+    int solve(unordered_map<int, vector<pair<int, int>>>& mp, int v) {//Primes - MST problem
+        vector<bool> visited(v, false);
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int, int>>> minH;
+
+        minH.push({0, 0});  // {distance, node}
+        int s = 0;
+        while (!minH.empty()) {
+            int dis = minH.top().first;
+            int node = minH.top().second;
+            minH.pop();
+            if (visited[node]) continue;
+            visited[node] = true;
+            s += dis;
+
+            for (auto& ngh : mp[node]) {
+                if (!visited[ngh.first]) {
+                    minH.push({ngh.second, ngh.first});
                 }
             }
         }
-        return cost;
+        return s;
+    }
+
+    int minCost(vector<vector<int>>& houses) {
+        int n = houses.size();
+        unordered_map<int,vector<pair<int,int>>> mp;
+        for(int j=0;j<houses.size();j++){
+            for(int i=j+1;i<houses.size();i++){
+                int d = abs(houses[j][0]-houses[i][0]) + abs(houses[j][1]-houses[i][1]);
+                mp[i].push_back({j,d});
+                mp[j].push_back({i,d});
+            }
+        }
+        return solve(mp,n);
     }
 };
 
