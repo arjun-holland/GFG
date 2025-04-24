@@ -8,17 +8,26 @@ using namespace std;
 class Solution {
   public:
     vector<int> singleNum(vector<int>& arr) {
-        // Code here.
-        map<int,int> mp;
-        vector<int> ans;
+        int r = 0;//XOR RESULT
         for(int e : arr){
-            mp[e]++;
+            r = r ^ e;
         }
-        for(auto it = mp.begin();it != mp.end();it++)
-            if(it->second == 1)ans.push_back(it->first);
-        return ans;
+        //int sb = r & -r; // used to isolate the right most set-bit in XOR
+        int pos = 0;// brute force way used to isolate the right most set-bit in XOR
+        while((r & 1) == 0){
+            pos++;
+            r >>= 1;
+        }
+        int g1=0,g2=0;
+        for(int e : arr){
+            if(e & (1 << pos))g1 = g1 ^ e;
+            else g2 = g2 ^ e;
+        }
+        if(g2 < g1)return {g2,g1};
+        return {g1,g2};
     }
 };
+
 
 
 //{ Driver Code Starts.
