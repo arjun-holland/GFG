@@ -1,92 +1,65 @@
-// class Solution {
-//   public:
-//     int mod = 1e7+9;
-//     long long calHash(string s, long long& r, int m){
-//         long long fac = 1,ans = 0;
-//         for(int i = m-1; i>= 0; i--){
-//             ans += ((s[i]-'a')*fac)%mod;
-//             fac = (fac * r)%mod;
-//         }
-//         return ans%mod;
-//     }
-//     vector<int> search(string &pat, string &txt) {
-//         // code here.
-//         vector<int> res;
-//         int m = pat.size(),n = txt.size();
-//         if(n < m)return res;
-        
-//         long long maxWeight = 1,radix = 26;
-//         for(int i=0;i<=m;i++){
-//             maxWeight = (radix*maxWeight) % mod;  //maxWeight = pow(26,m)%mod
-//         }
-        
-//         long long patHash = calHash(pat, radix, m);
-//         long long txtHash;
-//         for(int i=0;i<=n-m;i++){
-//             if(i == 0){
-//                 txtHash = calHash(txt, radix, m);
-//             }else{
-//                 txtHash = ((txtHash*radix)%mod - ((txt[i-1]-'a')*maxWeight)%mod + (txt[i+m-1]-'a') + mod)%mod;
-//             }
-            
-//             if(txtHash == patHash){
-//                 for(int j=0;j<m;j++){
-//                     if(pat[j] != txt[j+i])break;
-//                     if(j == m-1)res.push_back(i+1);
-//                 }
-//             }
-//         }
-//         return res;
-//     }
-// };
-
-
 class Solution {
 public:
-    int mod = 1e7 + 9;
-
-    long long calHash(const string &s, int start, int m, long long radix) {
-        long long hash = 0;
-        for (int i = 0; i < m; ++i) {
-            hash = (hash * radix + (s[start + i] - 'a')) % mod;
+    // Helper function to compare pattern with substring of text at index idx
+    bool isMatch(string& txt, string& pat, int idx) {
+        for (int i = 0; i < pat.size(); i++) {
+            if (txt[idx + i] != pat[i]) {
+                return false;
+            }
         }
-        return hash;
+        return true;
     }
+    vector<int> search(string& pat, string& txt) {
+        int m = pat.size();  // Length of pattern
+        int n = txt.size();  // Length of text
 
-    vector<int> search(string &pat, string &txt) {
-        vector<int> res;
-        int m = pat.size(), n = txt.size();
-        if (n < m) return res;
+        int base = 26;       // Base for hash (26 lowercase letters)
+        int mod  = 101;      // A prime modulus to avoid overflow and reduce collisions
 
-        long long radix = 26;
-        long long patHash = calHash(pat, 0, m, radix);
-        long long txtHash = calHash(txt, 0, m, radix);
+        vector<int> result;
+        int         patHash = 0; // Hash value for pattern
+        int         txtHash = 0; // Rolling hash value for text
+        int         power   = 1; // Power of base (base^i)
 
-        // Precompute radix^(m-1) % mod
-        long long RM = 1;
-        for (int i = 1; i < m; ++i) {
-            RM = (RM * radix) % mod;
+        // Compute initial hash for pattern and first window of text
+        for (int i = m - 1; i >= 0; i--) {
+            int patVal = pat[i] - 'a' + 1;
+            int txtVal = txt[i] - 'a' + 1;
+
+            patHash = (patHash + patVal * power) % mod;
+            txtHash = (txtHash + txtVal * power) % mod;
+            power   = (power * base) % mod;
         }
 
-        for (int i = 0; i <= n - m; ++i) {
-            if (txtHash == patHash) {
-                bool match = true;
-                for (int j = 0; j < m; ++j) {
-                    if (txt[i + j] != pat[j]) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) res.push_back(i + 1); // 1-based indexing
-            }
+        // Compare first window hash
+        if (txtHash == patHash && isMatch(txt, pat, 0)) {
+            result.push_back(1); // Store 1-based index
+        }
 
-            // Rolling hash
-            if (i < n - m) {
-                txtHash = (txtHash - ((txt[i] - 'a') * RM) % mod + mod) % mod;
-                txtHash = (txtHash * radix + (txt[i + m] - 'a')) % mod;
+        // Precompute highest power for sliding window (base^(m-1))
+        int highestPower = 1;
+        for (int i = 1; i < m; i++) {
+            highestPower = (highestPower * base) % mod;
+        }
+
+        // Slide window across text
+        for (int i = 1; i <= n - m; i++) {
+            int leftVal = txt[i - 1] - 'a' + 1;
+
+            // Remove leftmost character from hash
+            txtHash = (txtHash - (leftVal * highestPower) % mod + mod) % mod;
+            txtHash = (txtHash * base) % mod;
+
+            // Add new character to hash
+            int newVal = txt[i + m - 1] - 'a' + 1;
+            txtHash = (txtHash + newVal) % mod;
+
+            // If hashes match, verify with character comparison
+            if (txtHash == patHash && isMatch(txt, pat, i)) {
+                result.push_back(i + 1); // Store 1-based index
             }
         }
 
-        return res;
+        return result;
     }
 };
