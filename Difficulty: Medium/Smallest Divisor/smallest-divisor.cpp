@@ -12,6 +12,7 @@ public:
         }
 
         return sum <= k;  // sum ≤ k
+
     }
 
     int smallestDivisor(vector<int>& arr, int k) {
