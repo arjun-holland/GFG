@@ -1,44 +1,22 @@
 class Solution {
-public:
+  public:
+    vector<int> solve(vector<int>& arr,int i,int last,vector<vector<vector<int>>> &dp){
+        //base case
+        if(i==arr.size()) return {};
+        
+        if(!dp[i][last+1].empty()) return dp[i][last+1];
+        //recursive case
+        auto take=(last==-1 || arr[i]%arr[last]==0) ? solve(arr,i+1,i,dp) :vector<int>{};
+        if(last==-1 || arr[i]%arr[last]==0) take.insert(take.begin(),arr[i]);
+        auto nottake=solve(arr,i+1,last,dp);
+        
+        return dp[i][last+1]=(nottake.size()>take.size() || (nottake.size()==take.size() && nottake>take ))? nottake : take;
+    }
     vector<int> largestSubset(vector<int>& arr) {
-        int n = arr.size();
-        sort(arr.begin(), arr.end());
-
-        vector<vector<int>> dp(n);
-
-        vector<int> result;
-
-        for (int i = 0; i < n; i++) {
-            dp[i].push_back(arr[i]);
-
-            for (int j = 0; j < i; j++) {
-                bool valid = true;
-
-                // Check if arr[i] is divisible with every element in dp[j]
-                for (int x : dp[j]) {
-                    if (arr[i] % x != 0 && x % arr[i] != 0) {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if (valid && dp[j].size() + 1 > dp[i].size()) {
-                    dp[i] = dp[j];
-                    dp[i].push_back(arr[i]);
-                } else if (valid && dp[j].size() + 1 == dp[i].size()) {
-                    vector<int> temp = dp[j];
-                    temp.push_back(arr[i]);
-                    if (temp > dp[i]) {
-                        dp[i] = temp;
-                    }
-                }
-            }
-
-            if (dp[i].size() > result.size() || (dp[i].size() == result.size() && dp[i] > result)) {
-                result = dp[i];
-            }
-        }
-
-        return result;
+        int n=arr.size();
+        sort(arr.begin(),arr.end());
+        vector<vector<vector<int>>>dp(n,vector<vector<int>>(n+1));
+        return solve(arr,0,-1,dp);
+        
     }
 };
